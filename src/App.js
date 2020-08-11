@@ -17,10 +17,7 @@ function generateGrid(rows, columns, mapper) {
 }
 const newGolGrid = () => generateGrid(20, 20, () => Boolean(Math.floor(Math.random() * 2)));
 const deepClone = x => JSON.parse(JSON.stringify(x));
-
-const getInitialState = () => ({
-    grid: newGolGrid(),
-});
+const getInitialState = () => ({grid: newGolGrid()});
 
 const countActiveNeighbours = (rowIdx, colIdx, indexedGrid) => {
     let count = 0;
@@ -43,15 +40,21 @@ const reducer = (state, action) => {
             return getInitialState()
         }
 
+        case 'REVERSE': {
+            const grid = state.grid.map(row => row.map(value => !value));
+            return { grid }
+        }
+
         case 'NEXT': {
 
             const indexedGrid = {};
-            for (let i = 0; i < action.payload.length; i++){
-                for (let j = 0; j < action.payload[i].length; j++){
-                    indexedGrid[`row${i}col${j}`] = action.payload[i][j];
+            for (let i = 0; i < state.grid.length; i++){
+                for (let j = 0; j < state.grid[i].length; j++){
+                    indexedGrid[`row${i}col${j}`] = state.grid[i][j];
                 }
             }
-            const grid = action.payload.map((row, rowIdx) => row.map(
+            console.log(indexedGrid);
+            const grid = state.grid.map((row, rowIdx) => row.map(
                 (value, colIdx) => {
                     const activeNeighbours = countActiveNeighbours(rowIdx, colIdx, indexedGrid);
                     return(value
@@ -82,20 +85,10 @@ const reducer = (state, action) => {
 
 function Game () {
 
-
-
-    const reset = () => {
-        dispatch({ type: 'RESET' })
-    };
-
-    const next = (grid) => {
-        dispatch({ type: 'NEXT', payload: grid })
-    };
-
-    const flip = ({colIdx, rowIdx}) => {
-        console.log(colIdx, rowIdx);
-        dispatch({ type: 'FLIP', payload: {colIdx, rowIdx} })
-    };
+    const reset = () => {dispatch({ type: 'RESET' })};
+    const next = () => {dispatch({ type: 'NEXT'})};
+    const flip = ({colIdx, rowIdx}) => {dispatch({ type: 'FLIP', payload: {colIdx, rowIdx} })};
+    const reverse = () => {dispatch({ type: 'REVERSE' })};
 
     const [state, dispatch] = useReducer(
         reducer,
@@ -105,7 +98,8 @@ function Game () {
     return (
         <div>
             <button type='button' onClick={reset}>RESET</button>
-            <button type='button' onClick={() => next(grid)}>NEXT</button>
+            <button type='button' onClick={reverse}>REVERSE</button>
+            <button type='button' onClick={next}>NEXT</button>
             <Grid grid={grid} flip={flip}/>
         </div>
     )
@@ -144,8 +138,7 @@ function Cell ({ value, colIdx, rowIdx, flip }) {
         <button type='button'
                 style={{width: '100%',
                     height: '100%',
-                    backgroundColor: value ? '#000' : '#fff'}
-                }
+                    backgroundColor: value ? '#000' : '#fff'}}
                 onClick={() => flip({colIdx, rowIdx})}
         >
         </button>
