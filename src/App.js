@@ -46,7 +46,6 @@ const reducer = (state, action) => {
         case 'NEXT': {
 
             const indexedGrid = {};
-
             for (let i = 0; i < action.payload.length; i++){
                 for (let j = 0; j < action.payload[i].length; j++){
                     indexedGrid[`row${i}col${j}`] = action.payload[i][j];
@@ -56,13 +55,10 @@ const reducer = (state, action) => {
                 (value, colIdx) => {
                     const activeNeighbours = countActiveNeighbours(rowIdx, colIdx, indexedGrid);
                     return(value
-                        ? activeNeighbours === 2 || activeNeighbours === 3 ? true : false
-                        : activeNeighbours === 3 ? true : false)
+                        ? activeNeighbours === 2 || activeNeighbours === 3 // initially alive cell
+                        : activeNeighbours === 3) // initially dead cell
                 }));
-            console.log(grid);
-            return {
-                grid
-            }
+            return { grid }
         }
 
         case 'FLIP': {
