@@ -37,12 +37,12 @@ const reducer = (state, action) => {
     switch (action.type) {
 
         case 'RESET': {
-            return getInitialState()
+            return { ...state, grid: newGolGrid() }
         }
 
         case 'REVERSE': {
             const grid = state.grid.map(row => row.map(value => !value));
-            return { grid }
+            return { ...state, grid }
         }
 
         case 'NEXT': {
