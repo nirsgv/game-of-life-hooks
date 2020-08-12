@@ -15,7 +15,7 @@ function generateGrid(rows, columns, mapper) {
             .fill()
             .map(mapper))
 }
-const newGolGrid = () => generateGrid(30, 30, () => Boolean(Math.floor(Math.random() * 2)));
+const newGolGrid = () => generateGrid(50, 50, () => Boolean(Math.floor(Math.random() * 2)));
 const deepClone = x => JSON.parse(JSON.stringify(x));
 const getInitialState = () => ({grid: newGolGrid(), isAnimating: false, intervalId: ''});
 
@@ -104,7 +104,7 @@ function Game () {
     const flip = ({colIdx, rowIdx}) => {dispatch({ type: 'FLIP', payload: {colIdx, rowIdx} })};
     const reverse = () => {dispatch({ type: 'REVERSE' })};
     const animate = () => {
-        const intervalId = setInterval(() => {dispatch({ type: 'NEXT'})}, 60);
+        const intervalId = setInterval(() => {dispatch({ type: 'NEXT'})}, 100);
         dispatch({ type: 'ANIMATE', payload: intervalId })
     };
     const stopAnimate = (intervalId) => {
@@ -135,13 +135,11 @@ function Grid ({ grid, flip }) {
           gridTemplateRows: `repeat(${grid.length}, 1fr)`,
           gridTemplateColumns: `repeat(${grid[0].length}, 1fr)`,
           backgroundColor: '#444',
-          gridGap: 2
+          gridGap: 0
         }}>
           {grid.map((row, rowIdx) => row.map(
               (value, colIdx) => (
                   <Cell key={`${colIdx}-${rowIdx}`}
-                        colIdx={colIdx}
-                        rowIdx={rowIdx}
                         value={value}
                         flip={() => flip({colIdx, rowIdx})}
                   />
@@ -155,8 +153,8 @@ function Cell ({ value, flip }) {
   return (
       <div style={{
         backgroundColor: value ? '#000' : '#fff',
-        width: 30,
-        height: 30,
+        width: 20,
+        height: 20,
       }}>
         <button type='button'
                 style={{width: '100%',
