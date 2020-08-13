@@ -1,4 +1,4 @@
-import React, { useReducer } from 'react';
+import React, { useReducer, useMemo } from 'react';
 import './App.css';
 
 function App() {
@@ -15,9 +15,16 @@ function generateGrid(rows, columns, mapper) {
             .fill()
             .map(mapper))
 }
-const newGolGrid = () => generateGrid(50, 50, () => Boolean(Math.floor(Math.random() * 2)));
+const newGolGrid = () => generateGrid(30, 30, () => Boolean(Math.floor(Math.random() * 2)));
 const deepClone = x => JSON.parse(JSON.stringify(x));
-const getInitialState = () => ({grid: newGolGrid(), isAnimating: false, intervalId: ''});
+const getInitialState = () => ({
+    history: [{
+        grid: newGolGrid()
+    }],
+    isAnimating: false,
+    isReverseAnimating: false,
+    intervalId: ''
+});
 
 const countActiveNeighbours = (rowIdx, colIdx, indexedGrid) => {
     let count = 0;
@@ -37,44 +44,66 @@ const reducer = (state, action) => {
     switch (action.type) {
 
         case 'RESET': {
-            return { ...state, grid: newGolGrid() }
+            return {
+                ...state,
+                history: [{
+                    grid: newGolGrid()
+                }]}
         }
 
         case 'REVERSE': {
-            const grid = state.grid.map(row => row.map(value => !value));
-            return { ...state, grid }
+            const currentGrid = state.history[state.history.length-1].grid;
+            const reversedGrid = currentGrid.map(row => row.map(value => !value));
+            return { ...state, history: state.history.concat({grid: reversedGrid}) }
         }
 
         case 'NEXT': {
+            const currentGrid = state.history[state.history.length-1].grid;
             const indexedGrid = {};
-            for (let i = 0; i < state.grid.length; i++){
-                for (let j = 0; j < state.grid[i].length; j++){
-                    indexedGrid[`row${i}col${j}`] = state.grid[i][j];
+            for (let i = 0; i < currentGrid.length; i++){
+                for (let j = 0; j < currentGrid[i].length; j++){
+                    indexedGrid[`row${i}col${j}`] = currentGrid[i][j];
                 }
             }
-            const grid = state.grid.map((row, rowIdx) => row.map(
+            const nextGrid = currentGrid.map((row, rowIdx) => row.map(
                 (value, colIdx) => {
                     const activeNeighbours = countActiveNeighbours(rowIdx, colIdx, indexedGrid);
                     return(value
                         ? activeNeighbours === 2 || activeNeighbours === 3 // initially alive cell
                         : activeNeighbours === 3) // initially dead cell
                 }));
-            return { ...state, grid }
+            return { ...state, history: state.history.concat({grid: nextGrid}) }
+        }
+
+        case 'PREV': {
+            if (state.history.length !== 1) {
+                return {
+                ...state,
+                history: state.history.slice(0, -1)
+                }
+            } else {
+                clearInterval(state.intervalId);
+                return {
+                    ...state,
+                    isReverseAnimating: false,
+                    intervalId: ''
+                }
+            }
         }
 
         case 'FLIP': {
-            const nextState = deepClone(state);
+            const currentGrid = state.history[state.history.length-1].grid;
+            const nextState = deepClone(currentGrid);
             const { colIdx, rowIdx } = action.payload;
-            const cellValue = nextState.grid[rowIdx][colIdx];
-            nextState.grid[rowIdx][colIdx] = !cellValue;
-
+            const cellValue = nextState[rowIdx][colIdx];
+            nextState[rowIdx][colIdx] = !cellValue;
             return {
-                ...nextState
+                ...state,
+                history: state.history.concat({grid: nextState})
             }
         }
 
         case 'ANIMATE': {
-
             return {
                 ...state,
                 isAnimating: true,
@@ -83,52 +112,111 @@ const reducer = (state, action) => {
         }
 
         case 'STOP_ANIMATE': {
-
             return {
                 ...state,
                 isAnimating: false,
                 intervalId: ''
             }
         }
+        case 'REVERSE_ANIMATE': {
+            return {
+                ...state,
+                isReverseAnimating: true,
+                intervalId: action.payload
+            }
+        }
 
+        case 'STOP_REVERSE_ANIMATE': {
+            return {
+                ...state,
+                isReverseAnimating: false,
+                intervalId: ''
+            }
+        }
         default:
             return state;
     }
 };
 
-
-function Game () {
-
-    const reset = () => {dispatch({ type: 'RESET' })};
-    const next = () => {dispatch({ type: 'NEXT'})};
-    const flip = ({colIdx, rowIdx}) => {dispatch({ type: 'FLIP', payload: {colIdx, rowIdx} })};
-    const reverse = () => {dispatch({ type: 'REVERSE' })};
-    const animate = () => {
-        const intervalId = setInterval(() => {dispatch({ type: 'NEXT'})}, 100);
-        dispatch({ type: 'ANIMATE', payload: intervalId })
-    };
-    const stopAnimate = (intervalId) => {
-        clearInterval(intervalId);
-        dispatch({ type: 'STOP_ANIMATE' })
-    };
-
-    const [state, dispatch] = useReducer(
-        reducer,
-        getInitialState()
-    );
-    const { grid, isAnimating, intervalId } = state;
+function Controls ({reset, next, prev, reverse, animate, stopAnimate, isAnimating,
+                    reverseAnimate, isReverseAnimating, stopReverseAnimate, hasHistory}) {
     return (
         <div>
             <button type='button' onClick={reset}>RESET</button>
             <button type='button' onClick={reverse}>REVERSE</button>
             <button type='button' onClick={next}>NEXT</button>
-            <button type='button' onClick={!isAnimating ? animate : () => stopAnimate(intervalId)}>{!isAnimating ? 'ANIMATE' : 'STOP ANIMATE'}</button>
-            <Grid grid={grid} flip={flip}/>
+            <button type='button' onClick={prev} disabled={!hasHistory}>PREV</button>
+            <button type='button' onClick={!isAnimating ? animate : stopAnimate} disabled={isReverseAnimating}>{!isAnimating ? 'ANIMATE' : 'STOP ANIMATE'}</button>
+            <button type='button' onClick={!isReverseAnimating ? reverseAnimate : stopReverseAnimate} disabled={isAnimating}>{!isReverseAnimating ? 'REVERSE-ANIMATE' : 'STOP-REVERSE-ANIMATE'}</button>
+        </div>
+        )
+}
+
+function Game () {
+    const [state, dispatch] = useReducer(
+        reducer,
+        getInitialState()
+    );
+    const { history, isAnimating, isReverseAnimating, intervalId } = state;
+
+    const flip = ({colIdx, rowIdx}) => {dispatch({ type: 'FLIP', payload: {colIdx, rowIdx} })};
+    const reset = () => {dispatch({ type: 'RESET' })};
+    const next = () => {dispatch({ type: 'NEXT' })};
+    const prev = () => {dispatch({ type: 'PREV' })};
+    const reverse = () => {dispatch({ type: 'REVERSE' })};
+    const animate = () => {
+        const intervalId = setInterval(() => {dispatch({ type: 'NEXT'})}, 100);
+        dispatch({ type: 'ANIMATE', payload: intervalId })
+    };
+    const stopAnimate = () => {
+        clearInterval(intervalId);
+        dispatch({ type: 'STOP_ANIMATE' })
+    };
+
+    const reverseAnimate = () => {
+        const intervalId = setInterval(() => {dispatch({ type: 'PREV'})}, 100);
+        dispatch({ type: 'REVERSE_ANIMATE', payload: intervalId })
+    };
+
+    const stopReverseAnimate = () => {
+        clearInterval(intervalId);
+        dispatch({ type: 'STOP_REVERSE_ANIMATE' })
+    };
+
+
+    return (
+        <div>
+            <Controls reset={reset}
+                      next={next}
+                      prev={prev}
+                      reverse={reverse}
+                      animate={animate}
+                      stopAnimate={stopAnimate}
+                      reverseAnimate={reverseAnimate}
+                      stopReverseAnimate={stopReverseAnimate}
+                      isAnimating={isAnimating}
+                      isReverseAnimating={isReverseAnimating}
+                      hasHistory={history.length > 1}
+            />
+            <div>{history.length}</div>
+            <Grid grid={history[history.length-1].grid} flip={flip}/>
         </div>
     )
 }
 
 function Grid ({ grid, flip }) {
+    const MemoizedGrid = useMemo(
+        () =>
+            grid.map((row, rowIdx) => row.map(
+                (value, colIdx) => (
+                    <Cell key={`${colIdx}-${rowIdx}`}
+                          value={value}
+                          flip={() => flip({colIdx, rowIdx})}
+                    />
+                ))),
+        [grid]
+    );
+
   return (
       <div style={{display: 'inline-block'}}>
         <div style={{display: 'grid',
@@ -137,13 +225,7 @@ function Grid ({ grid, flip }) {
           backgroundColor: '#444',
           gridGap: 0
         }}>
-          {grid.map((row, rowIdx) => row.map(
-              (value, colIdx) => (
-                  <Cell key={`${colIdx}-${rowIdx}`}
-                        value={value}
-                        flip={() => flip({colIdx, rowIdx})}
-                  />
-              )))}
+          {MemoizedGrid}
         </div>
       </div>
   )
