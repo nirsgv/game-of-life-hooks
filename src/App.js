@@ -8,14 +8,14 @@ function App() {
     </div>
   );
 }
-function generateGrid(rows, columns, mapper) {
+function generateGrid(rows = 30, columns = 30, mapper) {
     return Array(rows)
         .fill()
         .map(() => Array(columns)
             .fill()
             .map(mapper))
 }
-const newGolGrid = () => generateGrid(30, 30, () => Boolean(Math.floor(Math.random() * 2)));
+const newGolGrid = (rows, columns) => generateGrid(rows, columns, () => Boolean(Math.floor(Math.random() * 2)));
 const deepClone = x => JSON.parse(JSON.stringify(x));
 const getInitialState = () => ({
     history: [{
@@ -23,7 +23,9 @@ const getInitialState = () => ({
     }],
     isAnimating: false,
     isReverseAnimating: false,
-    intervalId: ''
+    intervalId: '',
+    rows: 30,
+    columns: 30
 });
 
 const countActiveNeighbours = (rowIdx, colIdx, indexedGrid) => {
@@ -133,13 +135,33 @@ const reducer = (state, action) => {
                 intervalId: ''
             }
         }
+
+        case 'SET_ROWS': {
+            return {
+                ...state,
+                rows: action.payload,
+                history: [{
+                    grid: newGolGrid(action.payload, state.columns)
+                }]
+            }
+        }
+
+        case 'SET_COLUMNS': {
+            return {
+                ...state,
+                columns: action.payload,
+                history: [{
+                    grid: newGolGrid(state.rows, action.payload)
+                }]
+            }
+        }
         default:
             return state;
     }
 };
 
 function Controls ({reset, next, prev, reverse, animate, stopAnimate, isAnimating,
-                    reverseAnimate, isReverseAnimating, stopReverseAnimate, hasHistory}) {
+                    reverseAnimate, isReverseAnimating, stopReverseAnimate, hasHistory, rows, columns, setDimensions}) {
     return (
         <div>
             <button type='button' onClick={reset}>RESET</button>
@@ -148,6 +170,8 @@ function Controls ({reset, next, prev, reverse, animate, stopAnimate, isAnimatin
             <button type='button' onClick={prev} disabled={!hasHistory}>PREV</button>
             <button type='button' onClick={!isAnimating ? animate : stopAnimate} disabled={isReverseAnimating}>{!isAnimating ? 'ANIMATE' : 'STOP ANIMATE'}</button>
             <button type='button' onClick={!isReverseAnimating ? reverseAnimate : stopReverseAnimate} disabled={isAnimating}>{!isReverseAnimating ? 'REVERSE-ANIMATE' : 'STOP-REVERSE-ANIMATE'}</button>
+            <input type='number' value={rows} onChange={setDimensions} data-dimension='rows'/>
+            <input type='number' value={columns} onChange={setDimensions} data-dimension='columns'/>
         </div>
         )
 }
@@ -157,7 +181,7 @@ function Game () {
         reducer,
         getInitialState()
     );
-    const { history, isAnimating, isReverseAnimating, intervalId } = state;
+    const { history, isAnimating, isReverseAnimating, intervalId, rows, columns } = state;
 
     const flip = ({colIdx, rowIdx}) => {dispatch({ type: 'FLIP', payload: {colIdx, rowIdx} })};
     const reset = () => {dispatch({ type: 'RESET' })};
@@ -183,6 +207,18 @@ function Game () {
         dispatch({ type: 'STOP_REVERSE_ANIMATE' })
     };
 
+    const setRows = (e) => {
+        dispatch({ type: 'SET_ROWS', payload: Number(e.target.value) })
+    };
+
+    const setDimensions = (e) => {
+        console.log(e.target.dataset.dimension);
+        let value = e.target.value ? Number(e.target.value) : 1;
+        e.target.dataset.dimension === 'columns'
+            ? dispatch({ type: 'SET_COLUMNS', payload: value })
+            : dispatch({ type: 'SET_ROWS', payload: value })
+    };
+
 
     return (
         <div>
@@ -197,6 +233,9 @@ function Game () {
                       isAnimating={isAnimating}
                       isReverseAnimating={isReverseAnimating}
                       hasHistory={history.length > 1}
+                      rows={rows}
+                      columns={columns}
+                      setDimensions={setDimensions}
             />
             <div>{history.length}</div>
             <Grid grid={history[history.length-1].grid} flip={flip}/>
