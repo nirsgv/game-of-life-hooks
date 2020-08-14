@@ -9,7 +9,7 @@ function App() {
     );
 }
 
-function generateGrid(rows = 30, columns = 30, mapper) {
+function generateGrid(rows = 30, columns = 30, mapper = () => Boolean(Math.floor(Math.random() * 2))) {
     return Array(rows)
         .fill()
         .map(() => Array(columns)
@@ -17,7 +17,7 @@ function generateGrid(rows = 30, columns = 30, mapper) {
             .map(mapper))
 }
 
-const newGolGrid = (rows, columns) => generateGrid(rows, columns, () => Boolean(Math.floor(Math.random() * 2)));
+const newGolGrid = (rows, columns, mapper) => generateGrid(rows, columns, mapper);
 const deepClone = x => JSON.parse(JSON.stringify(x));
 const getInitialState = () => ({
     history: [{
@@ -48,19 +48,27 @@ const frameRateProps = {MIN: 50, MAX: 1000, STEP: 10};
 
 const getOppositeFramerate = (frameRateProps, input) => {
     const { MIN, MAX } = frameRateProps;
-    const range = MIN + MAX;
-    const oppositeOutput = range - Number(input);
-    return oppositeOutput;
+    return MIN + MAX - Number(input);
 }
+
 const reducer = (state, action) => {
 
     switch (action.type) {
 
-        case 'RESET': {
+        case 'RANDOMIZE': {
             return {
                 ...state,
                 history: [{
-                    grid: newGolGrid()
+                    grid: newGolGrid(state.rows, state.columns, () => Boolean(Math.floor(Math.random() * 2)))
+                }]
+            }
+        }
+
+        case 'CLEAR': {
+            return {
+                ...state,
+                history: [{
+                    grid: newGolGrid(state.rows, state.columns, () => false)
                 }]
             }
         }
@@ -68,7 +76,7 @@ const reducer = (state, action) => {
         case 'REVERSE': {
             const currentGrid = state.history[state.history.length - 1].grid,
                   reversedGrid = currentGrid.map(row => row.map(value => !value));
-            return {...state, history: state.history.concat({grid: reversedGrid})}
+            return {...state, history: [{grid: reversedGrid}]}
         }
 
         case 'NEXT': {
@@ -181,20 +189,21 @@ const reducer = (state, action) => {
 
 
 
-function Controls({ reset, next, prev, reverse, animate, stopAnimate, isAnimating, reverseAnimate, isReverseAnimating,
+function Controls({ randomize, clear, next, prev, reverse, animate, stopAnimate, isAnimating, reverseAnimate, isReverseAnimating,
                     stopReverseAnimate, hasHistory, rows, columns, setDimensions, frameRate, setFrameRate }) {
 
 
     return (
         <div>
-            <button type='button' onClick={reset}>RESET</button>
+            <button type='button' onClick={randomize}>RANDOMIZE</button>
+            <button type='button' onClick={clear}>CLEAR</button>
             <button type='button' onClick={reverse}>REVERSE</button>
             <button type='button' onClick={next}>NEXT</button>
             <button type='button' onClick={prev} disabled={!hasHistory}>PREV</button>
             <button type='button' onClick={!isAnimating ? animate : stopAnimate}
                     disabled={isReverseAnimating}>{!isAnimating ? 'ANIMATE' : 'STOP ANIMATE'}</button>
             <button type='button' onClick={!isReverseAnimating ? reverseAnimate : stopReverseAnimate}
-                    disabled={isAnimating}>{!isReverseAnimating ? 'REVERSE-ANIMATE' : 'STOP-REVERSE-ANIMATE'}</button>
+                    disabled={isAnimating || !hasHistory}>{!isReverseAnimating ? 'REVERSE-ANIMATE' : 'STOP-REVERSE-ANIMATE'}</button>
             <input type='number' value={rows} onChange={setDimensions} data-dimension='rows'/>
             <input type='number' value={columns} onChange={setDimensions} data-dimension='columns'/>
             <input type='range' value={frameRate} onChange={setFrameRate} min={frameRateProps.MIN}
@@ -207,7 +216,8 @@ function Game() {
     const [ state, dispatch ] = useReducer(reducer, getInitialState());
     const { history, isAnimating, isReverseAnimating, intervalId, rows, columns, frameRate } = state;
     const flip = ({colIdx, rowIdx}) => dispatch({type: 'FLIP', payload: {colIdx, rowIdx}});
-    const reset = () => dispatch({type: 'RESET'});
+    const randomize = () => dispatch({type: 'RANDOMIZE'});
+    const clear = () => dispatch({type: 'CLEAR'});
     const next = () => dispatch({type: 'NEXT'});
     const prev = () => dispatch({type: 'PREV'});
     const reverse = () => dispatch({type: 'REVERSE'});
@@ -255,7 +265,8 @@ function Game() {
 
     return (
         <div>
-            <Controls reset={reset}
+            <Controls randomize={randomize}
+                      clear={clear}
                       next={next}
                       prev={prev}
                       reverse={reverse}
