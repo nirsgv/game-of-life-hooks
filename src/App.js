@@ -27,7 +27,8 @@ const getInitialState = () => ({
     isReverseAnimating: false,
     intervalId: '',
     rows: 30,
-    columns: 30
+    columns: 30,
+    frameRate: 80
 });
 
 const countActiveNeighbours = (rowIdx, colIdx, indexedGrid) => {
@@ -43,6 +44,17 @@ const countActiveNeighbours = (rowIdx, colIdx, indexedGrid) => {
     return count;
 };
 
+const frameRateProps = {
+    MIN: 60,
+    MAX: 500
+}
+
+const getOppositeFramerate = (frameRateProps, input) => {
+    const { MIN, MAX } = frameRateProps;
+    const range = MIN + MAX;
+    const oppositeOutput = range - Number(input);
+    return oppositeOutput;
+}
 const reducer = (state, action) => {
 
     switch (action.type) {
@@ -158,15 +170,24 @@ const reducer = (state, action) => {
                 }]
             }
         }
+
+        case 'SET_FRAME_RATE': {
+            return {
+                ...state,
+                frameRate: action.payload
+            }
+        }
         default:
             return state;
     }
 };
 
-function Controls({
-                      reset, next, prev, reverse, animate, stopAnimate, isAnimating,
-                      reverseAnimate, isReverseAnimating, stopReverseAnimate, hasHistory, rows, columns, setDimensions
-                  }) {
+
+
+function Controls({ reset, next, prev, reverse, animate, stopAnimate, isAnimating, reverseAnimate, isReverseAnimating,
+                    stopReverseAnimate, hasHistory, rows, columns, setDimensions, frameRate, setFrameRate }) {
+
+
     return (
         <div>
             <button type='button' onClick={reset}>RESET</button>
@@ -179,36 +200,24 @@ function Controls({
                     disabled={isAnimating}>{!isReverseAnimating ? 'REVERSE-ANIMATE' : 'STOP-REVERSE-ANIMATE'}</button>
             <input type='number' value={rows} onChange={setDimensions} data-dimension='rows'/>
             <input type='number' value={columns} onChange={setDimensions} data-dimension='columns'/>
+            <input type='range' value={frameRate} onChange={setFrameRate} min={frameRateProps.MIN} max={frameRateProps.MAX} />
         </div>
     )
 }
 
 function Game() {
-    const [state, dispatch] = useReducer(
-        reducer,
-        getInitialState()
-    );
-    const {history, isAnimating, isReverseAnimating, intervalId, rows, columns} = state;
+    const [ state, dispatch ] = useReducer(reducer, getInitialState());
+    const { history, isAnimating, isReverseAnimating, intervalId, rows, columns, frameRate } = state;
+    const flip = ({colIdx, rowIdx}) => dispatch({type: 'FLIP', payload: {colIdx, rowIdx}});
+    const reset = () => dispatch({type: 'RESET'});
+    const next = () => dispatch({type: 'NEXT'});
+    const prev = () => dispatch({type: 'PREV'});
+    const reverse = () => dispatch({type: 'REVERSE'});
 
-    const flip = ({colIdx, rowIdx}) => {
-        dispatch({type: 'FLIP', payload: {colIdx, rowIdx}})
-    };
-    const reset = () => {
-        dispatch({type: 'RESET'})
-    };
-    const next = () => {
-        dispatch({type: 'NEXT'})
-    };
-    const prev = () => {
-        dispatch({type: 'PREV'})
-    };
-    const reverse = () => {
-        dispatch({type: 'REVERSE'})
-    };
     const animate = () => {
         const intervalId = setInterval(() => {
             dispatch({type: 'NEXT'})
-        }, 100);
+        }, getOppositeFramerate(frameRateProps,frameRate));
         dispatch({type: 'ANIMATE', payload: intervalId})
     };
     const stopAnimate = () => {
@@ -219,7 +228,7 @@ function Game() {
     const reverseAnimate = () => {
         const intervalId = setInterval(() => {
             dispatch({type: 'PREV'})
-        }, 100);
+        }, getOppositeFramerate(frameRateProps,frameRate));
         dispatch({type: 'REVERSE_ANIMATE', payload: intervalId})
     };
 
@@ -235,6 +244,16 @@ function Game() {
             : dispatch({type: 'SET_ROWS', payload: value})
     };
 
+    const setFrameRate = (e) => {
+        dispatch({type: 'SET_FRAME_RATE', payload: Number(e.target.value)});
+        if (isAnimating){
+            stopAnimate();
+            animate()
+        } else if (isReverseAnimating){
+            stopReverseAnimate();
+            reverseAnimate()
+        }
+    };
 
     return (
         <div>
@@ -252,6 +271,8 @@ function Game() {
                       rows={rows}
                       columns={columns}
                       setDimensions={setDimensions}
+                      frameRate={frameRate}
+                      setFrameRate={setFrameRate}
             />
             <div>{history.length}</div>
             <Grid grid={history[history.length - 1].grid} flip={flip}/>
