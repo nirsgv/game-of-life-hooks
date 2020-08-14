@@ -28,7 +28,7 @@ const getInitialState = () => ({
     intervalId: '',
     rows: 30,
     columns: 30,
-    frameRate: 80
+    frameRate: 900
 });
 
 const countActiveNeighbours = (rowIdx, colIdx, indexedGrid) => {
@@ -44,10 +44,7 @@ const countActiveNeighbours = (rowIdx, colIdx, indexedGrid) => {
     return count;
 };
 
-const frameRateProps = {
-    MIN: 60,
-    MAX: 500
-}
+const frameRateProps = {MIN: 50, MAX: 1000, STEP: 10};
 
 const getOppositeFramerate = (frameRateProps, input) => {
     const { MIN, MAX } = frameRateProps;
@@ -69,14 +66,14 @@ const reducer = (state, action) => {
         }
 
         case 'REVERSE': {
-            const currentGrid = state.history[state.history.length - 1].grid;
-            const reversedGrid = currentGrid.map(row => row.map(value => !value));
+            const currentGrid = state.history[state.history.length - 1].grid,
+                  reversedGrid = currentGrid.map(row => row.map(value => !value));
             return {...state, history: state.history.concat({grid: reversedGrid})}
         }
 
         case 'NEXT': {
-            const currentGrid = state.history[state.history.length - 1].grid;
-            const indexedGrid = {};
+            const currentGrid = state.history[state.history.length - 1].grid,
+                  indexedGrid = {};
             for (let i = 0; i < currentGrid.length; i++) {
                 for (let j = 0; j < currentGrid[i].length; j++) {
                     indexedGrid[`row${i}col${j}`] = currentGrid[i][j];
@@ -109,10 +106,10 @@ const reducer = (state, action) => {
         }
 
         case 'FLIP': {
-            const currentGrid = state.history[state.history.length - 1].grid;
-            const nextState = deepClone(currentGrid);
-            const {colIdx, rowIdx} = action.payload;
-            const cellValue = nextState[rowIdx][colIdx];
+            const currentGrid = state.history[state.history.length - 1].grid,
+                  nextState = deepClone(currentGrid),
+                  {colIdx, rowIdx} = action.payload,
+                  cellValue = nextState[rowIdx][colIdx];
             nextState[rowIdx][colIdx] = !cellValue;
             return {
                 ...state,
@@ -200,7 +197,8 @@ function Controls({ reset, next, prev, reverse, animate, stopAnimate, isAnimatin
                     disabled={isAnimating}>{!isReverseAnimating ? 'REVERSE-ANIMATE' : 'STOP-REVERSE-ANIMATE'}</button>
             <input type='number' value={rows} onChange={setDimensions} data-dimension='rows'/>
             <input type='number' value={columns} onChange={setDimensions} data-dimension='columns'/>
-            <input type='range' value={frameRate} onChange={setFrameRate} min={frameRateProps.MIN} max={frameRateProps.MAX} />
+            <input type='range' value={frameRate} onChange={setFrameRate} min={frameRateProps.MIN}
+                   max={frameRateProps.MAX} step={frameRateProps.STEP} disabled={isAnimating || isReverseAnimating}/>
         </div>
     )
 }
@@ -265,14 +263,14 @@ function Game() {
                       stopAnimate={stopAnimate}
                       reverseAnimate={reverseAnimate}
                       stopReverseAnimate={stopReverseAnimate}
+                      setDimensions={setDimensions}
+                      setFrameRate={setFrameRate}
                       isAnimating={isAnimating}
                       isReverseAnimating={isReverseAnimating}
                       hasHistory={history.length > 1}
                       rows={rows}
                       columns={columns}
-                      setDimensions={setDimensions}
                       frameRate={frameRate}
-                      setFrameRate={setFrameRate}
             />
             <div>{history.length}</div>
             <Grid grid={history[history.length - 1].grid} flip={flip}/>
