@@ -1,6 +1,7 @@
 import React, {useReducer, useMemo} from 'react';
+import reducer from './reducer'
+import * as helpers from './helpers'
 import * as styled from './styledComponents'
-
 
 function App() {
     return (
@@ -9,186 +10,6 @@ function App() {
         </styled.AppContainer>
     );
 }
-
-function generateGrid(rows = 30, columns = 30, mapper = () => Boolean(Math.floor(Math.random() * 2))) {
-    return Array(rows)
-        .fill()
-        .map(() => Array(columns)
-            .fill()
-            .map(mapper))
-}
-
-const newGolGrid = (rows, columns, mapper) => generateGrid(rows, columns, mapper);
-const deepClone = x => JSON.parse(JSON.stringify(x));
-const getInitialState = () => ({
-    history: [{
-        grid: newGolGrid()
-    }],
-    isAnimating: false,
-    isReverseAnimating: false,
-    intervalId: '',
-    rows: 30,
-    columns: 30,
-    frameRate: 900
-});
-
-const countActiveNeighbours = (rowIdx, colIdx, indexedGrid) => {
-    let count = 0;
-    indexedGrid[`row${rowIdx - 1}col${colIdx - 1}`] && count++;
-    indexedGrid[`row${rowIdx - 1}col${colIdx}`] && count++;
-    indexedGrid[`row${rowIdx - 1}col${colIdx + 1}`] && count++;
-    indexedGrid[`row${rowIdx}col${colIdx - 1}`] && count++;
-    indexedGrid[`row${rowIdx}col${colIdx + 1}`] && count++;
-    indexedGrid[`row${rowIdx + 1}col${colIdx - 1}`] && count++;
-    indexedGrid[`row${rowIdx + 1}col${colIdx}`] && count++;
-    indexedGrid[`row${rowIdx + 1}col${colIdx + 1}`] && count++;
-    return count;
-};
-
-const frameRateProps = {MIN: 50, MAX: 1000, STEP: 10};
-
-const getOppositeFramerate = (frameRateProps, input) => {
-    const { MIN, MAX } = frameRateProps;
-    return MIN + MAX - Number(input);
-}
-
-const reducer = (state, action) => {
-
-    switch (action.type) {
-
-        case 'RANDOMIZE': {
-            return {
-                ...state,
-                history: [{
-                    grid: newGolGrid(state.rows, state.columns, () => Boolean(Math.floor(Math.random() * 2)))
-                }]
-            }
-        }
-
-        case 'CLEAR': {
-            return {
-                ...state,
-                history: [{
-                    grid: newGolGrid(state.rows, state.columns, () => false)
-                }]
-            }
-        }
-
-        case 'REVERSE': {
-            const currentGrid = state.history[state.history.length - 1].grid,
-                  reversedGrid = currentGrid.map(row => row.map(value => !value));
-            return {...state, history: [{grid: reversedGrid}]}
-        }
-
-        case 'NEXT': {
-            const currentGrid = state.history[state.history.length - 1].grid,
-                  indexedGrid = {};
-            for (let i = 0; i < currentGrid.length; i++) {
-                for (let j = 0; j < currentGrid[i].length; j++) {
-                    indexedGrid[`row${i}col${j}`] = currentGrid[i][j];
-                }
-            }
-            const nextGrid = currentGrid.map((row, rowIdx) => row.map(
-                (value, colIdx) => {
-                    const activeNeighbours = countActiveNeighbours(rowIdx, colIdx, indexedGrid);
-                    return (value
-                        ? activeNeighbours === 2 || activeNeighbours === 3 // initially alive cell
-                        : activeNeighbours === 3) // initially dead cell
-                }));
-            return {...state, history: state.history.concat({grid: nextGrid})}
-        }
-
-        case 'PREV': {
-            if (state.history.length !== 1) {
-                return {
-                    ...state,
-                    history: state.history.slice(0, -1)
-                }
-            } else {
-                clearInterval(state.intervalId);
-                return {
-                    ...state,
-                    isReverseAnimating: false,
-                    intervalId: ''
-                }
-            }
-        }
-
-        case 'FLIP': {
-            const currentGrid = state.history[state.history.length - 1].grid,
-                  nextState = deepClone(currentGrid),
-                  {colIdx, rowIdx} = action.payload,
-                  cellValue = nextState[rowIdx][colIdx];
-            nextState[rowIdx][colIdx] = !cellValue;
-            return {
-                ...state,
-                history: state.history.concat({grid: nextState})
-            }
-        }
-
-        case 'ANIMATE': {
-            return {
-                ...state,
-                isAnimating: true,
-                intervalId: action.payload
-            }
-        }
-
-        case 'STOP_ANIMATE': {
-            return {
-                ...state,
-                isAnimating: false,
-                intervalId: ''
-            }
-        }
-
-        case 'REVERSE_ANIMATE': {
-            return {
-                ...state,
-                isReverseAnimating: true,
-                intervalId: action.payload
-            }
-        }
-
-        case 'STOP_REVERSE_ANIMATE': {
-            return {
-                ...state,
-                isReverseAnimating: false,
-                intervalId: ''
-            }
-        }
-
-        case 'SET_ROWS': {
-            return {
-                ...state,
-                rows: action.payload,
-                history: [{
-                    grid: newGolGrid(action.payload, state.columns)
-                }]
-            }
-        }
-
-        case 'SET_COLUMNS': {
-            return {
-                ...state,
-                columns: action.payload,
-                history: [{
-                    grid: newGolGrid(state.rows, action.payload)
-                }]
-            }
-        }
-
-        case 'SET_FRAME_RATE': {
-            return {
-                ...state,
-                frameRate: action.payload
-            }
-        }
-        default:
-            return state;
-    }
-};
-
 
 function Controls({ randomize, clear, next, prev, reverse, animate, stopAnimate, isAnimating, reverseAnimate, isReverseAnimating,
                     stopReverseAnimate, hasHistory, rows, columns, setDimensions, frameRate, setFrameRate }) {
@@ -211,8 +32,8 @@ function Controls({ randomize, clear, next, prev, reverse, animate, stopAnimate,
                         disabled={isReverseAnimating}>{!isAnimating ? 'ANIMATE' : 'STOP'}</styled.Button>
                 <styled.Button type='button' onClick={!isReverseAnimating ? reverseAnimate : stopReverseAnimate}
                         disabled={isAnimating || !hasHistory}>{!isReverseAnimating ? 'REVERSE-ANIMATE' : 'STOP'}</styled.Button>
-                <input type='range' value={frameRate} onChange={setFrameRate} min={frameRateProps.MIN}
-                       max={frameRateProps.MAX} step={frameRateProps.STEP} disabled={isAnimating || isReverseAnimating}/>
+                <input type='range' value={frameRate} onChange={setFrameRate} min={helpers.frameRateProps.MIN}
+                       max={helpers.frameRateProps.MAX} step={helpers.frameRateProps.STEP} disabled={isAnimating || isReverseAnimating}/>
             </styled.ButtonGroup>
             <styled.ButtonGroup>
                 <styled.ButtonGroupTitle>Grid</styled.ButtonGroupTitle>
@@ -222,6 +43,18 @@ function Controls({ randomize, clear, next, prev, reverse, animate, stopAnimate,
         </styled.ButtonWrap>
     )
 }
+
+const getInitialState = () => ({
+    history: [{
+        grid: helpers.newGolGrid()
+    }],
+    isAnimating: false,
+    isReverseAnimating: false,
+    intervalId: '',
+    rows: 30,
+    columns: 30,
+    frameRate: 900
+});
 
 function Game() {
     const [ state, dispatch ] = useReducer(reducer, getInitialState());
@@ -236,7 +69,7 @@ function Game() {
     const animate = () => {
         const intervalId = setInterval(() => {
             dispatch({type: 'NEXT'})
-        }, getOppositeFramerate(frameRateProps,frameRate));
+        }, helpers.getOppositeFramerate(helpers.frameRateProps,frameRate));
         dispatch({type: 'ANIMATE', payload: intervalId})
     };
     const stopAnimate = () => {
@@ -247,7 +80,7 @@ function Game() {
     const reverseAnimate = () => {
         const intervalId = setInterval(() => {
             dispatch({type: 'PREV'})
-        }, getOppositeFramerate(frameRateProps,frameRate));
+        }, helpers.getOppositeFramerate(helpers.frameRateProps,frameRate));
         dispatch({type: 'REVERSE_ANIMATE', payload: intervalId})
     };
 
