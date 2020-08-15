@@ -2,6 +2,9 @@ import styled from 'styled-components';
 
 const AppContainer = styled.div`
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
 `
 
 const ButtonWrap = styled.section`
@@ -38,10 +41,15 @@ const ButtonGroupTitle = styled.h2`
     margin: 0 0 .6rem 0;
 `
 
+const GridSection = styled.main`
+    margin: auto 0;
+`
+
 const GridWrap = styled.div`
     display: inline-block;
     border: 1px solid #ccc;
     padding: 1rem;
+    align-self: center;
 `
 
 const Grid = styled.div`
@@ -61,6 +69,21 @@ const Automaton = styled.div`
     background-color: ${props => props.value ? "#000" : "#fff"};
     width: 20px;
     height: 20px;
+    
+    &:hover {
+      background-color: red; 
+    }
+`
+
+const FrameNumberSection = styled.div`
+    border-bottom: 1px solid #ddd;
+    background-color: #37474f;
+    color: #fff;
+`
+
+const FrameNumber = styled.div`
+    font-size: 20px;
+    padding: 1rem 0;
 `
 
 export {
@@ -70,8 +93,11 @@ export {
     Button,
     Header,
     ButtonGroupTitle,
+    GridSection,
     GridWrap,
     Grid,
     CellWrap,
-    Automaton
+    Automaton,
+    FrameNumberSection,
+    FrameNumber
 }
