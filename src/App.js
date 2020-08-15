@@ -1,11 +1,12 @@
 import React, {useReducer, useMemo} from 'react';
-import './App.css';
+import * as styled from './styledComponents'
+
 
 function App() {
     return (
-        <div className="App">
+        <styled.AppContainer>
             <Game/>
-        </div>
+        </styled.AppContainer>
     );
 }
 
@@ -140,6 +141,7 @@ const reducer = (state, action) => {
                 intervalId: ''
             }
         }
+
         case 'REVERSE_ANIMATE': {
             return {
                 ...state,
@@ -188,27 +190,36 @@ const reducer = (state, action) => {
 };
 
 
-
 function Controls({ randomize, clear, next, prev, reverse, animate, stopAnimate, isAnimating, reverseAnimate, isReverseAnimating,
                     stopReverseAnimate, hasHistory, rows, columns, setDimensions, frameRate, setFrameRate }) {
-
-
     return (
-        <div>
-            <button type='button' onClick={randomize}>RANDOMIZE</button>
-            <button type='button' onClick={clear}>CLEAR</button>
-            <button type='button' onClick={reverse}>REVERSE</button>
-            <button type='button' onClick={next}>NEXT</button>
-            <button type='button' onClick={prev} disabled={!hasHistory}>PREV</button>
-            <button type='button' onClick={!isAnimating ? animate : stopAnimate}
-                    disabled={isReverseAnimating}>{!isAnimating ? 'ANIMATE' : 'STOP ANIMATE'}</button>
-            <button type='button' onClick={!isReverseAnimating ? reverseAnimate : stopReverseAnimate}
-                    disabled={isAnimating || !hasHistory}>{!isReverseAnimating ? 'REVERSE-ANIMATE' : 'STOP-REVERSE-ANIMATE'}</button>
-            <input type='number' value={rows} onChange={setDimensions} data-dimension='rows'/>
-            <input type='number' value={columns} onChange={setDimensions} data-dimension='columns'/>
-            <input type='range' value={frameRate} onChange={setFrameRate} min={frameRateProps.MIN}
-                   max={frameRateProps.MAX} step={frameRateProps.STEP} disabled={isAnimating || isReverseAnimating}/>
-        </div>
+        <styled.ButtonWrap>
+            <styled.ButtonGroup>
+                <styled.ButtonGroupTitle>Reset</styled.ButtonGroupTitle>
+                <styled.Button type='button' onClick={randomize}>RANDOMIZE</styled.Button>
+                <styled.Button type='button' onClick={clear}>CLEAR</styled.Button>
+                <styled.Button type='button' onClick={reverse}>NEGATE</styled.Button>
+            </styled.ButtonGroup>
+            <styled.ButtonGroup>
+                <styled.ButtonGroupTitle>Iterate</styled.ButtonGroupTitle>
+                <styled.Button type='button' onClick={next}>NEXT</styled.Button>
+                <styled.Button type='button' onClick={prev} disabled={!hasHistory}>PREV</styled.Button>
+            </styled.ButtonGroup>
+            <styled.ButtonGroup>
+                <styled.ButtonGroupTitle>Animate</styled.ButtonGroupTitle>
+                <styled.Button type='button' onClick={!isAnimating ? animate : stopAnimate}
+                        disabled={isReverseAnimating}>{!isAnimating ? 'ANIMATE' : 'STOP'}</styled.Button>
+                <styled.Button type='button' onClick={!isReverseAnimating ? reverseAnimate : stopReverseAnimate}
+                        disabled={isAnimating || !hasHistory}>{!isReverseAnimating ? 'REVERSE-ANIMATE' : 'STOP'}</styled.Button>
+                <input type='range' value={frameRate} onChange={setFrameRate} min={frameRateProps.MIN}
+                       max={frameRateProps.MAX} step={frameRateProps.STEP} disabled={isAnimating || isReverseAnimating}/>
+            </styled.ButtonGroup>
+            <styled.ButtonGroup>
+                <styled.ButtonGroupTitle>Grid</styled.ButtonGroupTitle>
+                <input type='number' value={rows} onChange={setDimensions} data-dimension='rows'/>
+                <input type='number' value={columns} onChange={setDimensions} data-dimension='columns'/>
+            </styled.ButtonGroup>
+        </styled.ButtonWrap>
     )
 }
 
@@ -264,7 +275,8 @@ function Game() {
     };
 
     return (
-        <div>
+        <>
+        <styled.Header className='controls'>
             <Controls randomize={randomize}
                       clear={clear}
                       next={next}
@@ -283,9 +295,10 @@ function Game() {
                       columns={columns}
                       frameRate={frameRate}
             />
-            <div>{history.length}</div>
-            <Grid grid={history[history.length - 1].grid} flip={flip}/>
-        </div>
+        </styled.Header>
+        <div>{history.length}</div>
+        <Grid grid={history[history.length - 1].grid} flip={flip}/>
+        </>
     )
 }
 
@@ -303,37 +316,19 @@ function Grid({grid, flip}) {
     );
 
     return (
-        <div style={{display: 'inline-block'}}>
-            <div style={{
-                display: 'grid',
-                gridTemplateRows: `repeat(${grid.length}, 1fr)`,
-                gridTemplateColumns: `repeat(${grid[0].length}, 1fr)`,
-                backgroundColor: '#444',
-                gridGap: 0
-            }}>
+        <styled.GridWrap>
+            <styled.Grid rowCount={grid.length} columnCount={grid[0].length}>
                 {MemoizedGrid}
-            </div>
-        </div>
+            </styled.Grid>
+        </styled.GridWrap>
     )
 }
 
 function Cell({value, flip}) {
     return (
-        <div style={{
-            backgroundColor: value ? '#000' : '#fff',
-            width: 20,
-            height: 20,
-        }}>
-            <button type='button'
-                    style={{
-                        width: '100%',
-                        height: '100%',
-                        backgroundColor: value ? '#000' : '#fff'
-                    }}
-                    onClick={flip}
-            >
-            </button>
-        </div>
+        <styled.CellWrap>
+            <styled.Automaton type='button' value={value} onClick={flip} />
+        </styled.CellWrap>
     )
 }
 
