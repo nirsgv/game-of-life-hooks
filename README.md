@@ -10,5 +10,5 @@ The game rules:
 <li>Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.</li>
 </ol>
 
+My favorite feature - 'time-traveling' (try the 'REVERSE-ANIMATE' button).\
 Developed using react with hooks (notably useReducer for state management).
-My favorite feature - 'time-traveling' (try the 'REVERSE-ANIMATE' button).
