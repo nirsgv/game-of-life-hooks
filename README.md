@@ -9,3 +9,6 @@ The game rules:
 <li>Any live cell with more than three live neighbours dies, as if by overpopulation.</li>
 <li>Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.</li>
 </ol>
+
+Developed using react with hooks (notably useReducer for state management).
+My favorite feature - 'time-traveling' (try the 'REVERSE-ANIMATE' button).
