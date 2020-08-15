@@ -65,7 +65,7 @@ const CellWrap = styled.div`
     height: 20px;
 `
 
-const Automaton = styled.div`
+const Automaton = styled.button`
     background-color: ${props => props.value ? "#000" : "#fff"};
     width: 20px;
     height: 20px;
@@ -76,7 +76,8 @@ const Automaton = styled.div`
 `
 
 const FrameNumberSection = styled.div`
-    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: center;
     background-color: #37474f;
     color: #fff;
 `
@@ -84,6 +85,18 @@ const FrameNumberSection = styled.div`
 const FrameNumber = styled.div`
     font-size: 20px;
     padding: 1rem 0;
+`
+
+const Dl = styled.div`
+    display: flex;
+    width: 200px;
+    justify-content: space-between'
+`
+const Dt = styled.div`
+    display: inline-block;
+`
+const Dd = styled.div`
+    display: inline-block;
 `
 
 export {
@@ -99,5 +112,8 @@ export {
     CellWrap,
     Automaton,
     FrameNumberSection,
-    FrameNumber
+    FrameNumber,
+    Dl,
+    Dt,
+    Dd
 }

@@ -1,7 +1,7 @@
 import React, { useReducer, useMemo } from 'react';
-import reducer from './reducer'
-import * as helpers from './helpers'
-import * as styled from './styledComponents'
+import reducer from './reducer';
+import * as helpers from './helpers';
+import * as styled from './styledComponents';
 
 function App() {
     return (
@@ -97,7 +97,12 @@ function Game() {
             />
         </styled.Header>
         <styled.FrameNumberSection>
-            <styled.FrameNumber>{history.length}</styled.FrameNumber>
+            <styled.FrameNumber>
+                <styled.Dl>
+                    <styled.Dt style={{display: 'inline-block'}}>Frame Number:</styled.Dt>
+                    <styled.Dd style={{display: 'inline-block'}}>{history.length}</styled.Dd>
+                </styled.Dl>
+            </styled.FrameNumber>
         </styled.FrameNumberSection>
         <styled.GridSection>
             <Grid grid={history[history.length - 1].grid} flip={flip}/>
@@ -111,17 +116,6 @@ function Controls({ randomize, clear, next, prev, reverse, animate, stopAnimate,
     return (
         <styled.ButtonWrap>
             <styled.ButtonGroup>
-                <styled.ButtonGroupTitle>Reset</styled.ButtonGroupTitle>
-                <styled.Button type='button' onClick={randomize}>RANDOMIZE</styled.Button>
-                <styled.Button type='button' onClick={clear}>CLEAR</styled.Button>
-                <styled.Button type='button' onClick={reverse}>NEGATE</styled.Button>
-            </styled.ButtonGroup>
-            <styled.ButtonGroup>
-                <styled.ButtonGroupTitle>Iterate</styled.ButtonGroupTitle>
-                <styled.Button type='button' onClick={next}>NEXT</styled.Button>
-                <styled.Button type='button' onClick={prev} disabled={!hasHistory}>PREV</styled.Button>
-            </styled.ButtonGroup>
-            <styled.ButtonGroup>
                 <styled.ButtonGroupTitle>Animate</styled.ButtonGroupTitle>
                 <styled.Button type='button' onClick={!isAnimating ? animate : stopAnimate}
                                disabled={isReverseAnimating}>{!isAnimating ? 'ANIMATE' : 'STOP'}</styled.Button>
@@ -129,6 +123,17 @@ function Controls({ randomize, clear, next, prev, reverse, animate, stopAnimate,
                                disabled={isAnimating || !hasHistory}>{!isReverseAnimating ? 'REVERSE-ANIMATE' : 'STOP'}</styled.Button>
                 <input type='range' value={frameRate} onChange={setFrameRate} min={helpers.frameRateProps.MIN}
                        max={helpers.frameRateProps.MAX} step={helpers.frameRateProps.STEP} disabled={isAnimating || isReverseAnimating}/>
+            </styled.ButtonGroup>
+            <styled.ButtonGroup>
+                <styled.ButtonGroupTitle>Iterate</styled.ButtonGroupTitle>
+                <styled.Button type='button' onClick={next}>NEXT</styled.Button>
+                <styled.Button type='button' onClick={prev} disabled={!hasHistory}>PREV</styled.Button>
+            </styled.ButtonGroup>
+            <styled.ButtonGroup>
+                <styled.ButtonGroupTitle>Reset</styled.ButtonGroupTitle>
+                <styled.Button type='button' onClick={randomize}>RANDOMIZE</styled.Button>
+                <styled.Button type='button' onClick={clear}>CLEAR</styled.Button>
+                <styled.Button type='button' onClick={reverse}>NEGATE</styled.Button>
             </styled.ButtonGroup>
             <styled.ButtonGroup>
                 <styled.ButtonGroupTitle>Grid</styled.ButtonGroupTitle>
