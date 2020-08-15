@@ -1,7 +1,7 @@
 Please try the [Deployed App](https://frozen-castle-59910.herokuapp.com/).\
 Conway's Game of Life is a [Cellular automaton](https://en.wikipedia.org/wiki/Cellular_automaton) (amazing) [zero-player game](https://en.wikipedia.org/wiki/Zero-player_game).
 
-The game rules:\
+The game rules:
 <ol>
 <li>Any live cell with fewer than two live neighbours dies, as if by underpopulation.</li>
 <li>Any live cell with two or three live neighbours lives on to the next generation</li>
