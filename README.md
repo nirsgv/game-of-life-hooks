@@ -1,1 +1,1 @@
-Please try [Deployed App](https://frozen-castle-59910.herokuapp.com/).
+Please try the [Deployed App](https://frozen-castle-59910.herokuapp.com/).
