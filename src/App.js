@@ -2,12 +2,38 @@ import React, { useReducer, useMemo } from 'react';
 import reducer from './reducer';
 import * as helpers from './helpers';
 import * as styled from './styledComponents';
+import { createGlobalStyle } from 'styled-components';
+
+const GlobalStyle = createGlobalStyle`
+    html {
+      font-size: 62.5%;
+    }
+
+    body {
+      margin: 0;
+      font-size: 1.6rem;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      font-family: 'Kaushan Script', cursive;
+    }
+    
+    button {
+      font-family: 'Open Sans', sans-serif;
+      font-weight: 300;
+    }
+`;
 
 function App() {
     return (
+        <>
+        <GlobalStyle />
         <styled.AppContainer>
             <Game/>
         </styled.AppContainer>
+        </>
     );
 }
 

@@ -37,7 +37,7 @@ const Header = styled.header`
 
 const ButtonGroupTitle = styled.h2`
     color: #333;
-    font-size: 1rem;
+    font-size: 3.1rem;
     margin: 0 0 .6rem 0;
 `
 
@@ -87,15 +87,15 @@ const FrameNumber = styled.div`
     padding: 1rem 0;
 `
 
-const Dl = styled.div`
+const Dl = styled.dl`
     display: flex;
     width: 200px;
-    justify-content: space-between'
+    justify-content: space-between;
 `
-const Dt = styled.div`
+const Dt = styled.dt`
     display: inline-block;
 `
-const Dd = styled.div`
+const Dd = styled.dd`
     display: inline-block;
 `
 
