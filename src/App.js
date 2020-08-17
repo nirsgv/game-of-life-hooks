@@ -2,29 +2,7 @@ import React, { useReducer, useMemo } from 'react';
 import reducer from './reducer';
 import * as helpers from './helpers';
 import * as styled from './styledComponents';
-import { createGlobalStyle } from 'styled-components';
-
-const GlobalStyle = createGlobalStyle`
-    html {
-      font-size: 62.5%;
-    }
-
-    body {
-      margin: 0;
-      font-size: 1.6rem;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-        sans-serif;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      font-family: 'Kaushan Script', cursive;
-    }
-    
-    button {
-      font-family: 'Open Sans', sans-serif;
-      font-weight: 300;
-    }
-`;
+import GlobalStyle from './globalStyle'
 
 function App() {
     return (
@@ -125,8 +103,8 @@ function Game() {
         <styled.FrameNumberSection>
             <styled.FrameNumber>
                 <styled.Dl>
-                    <styled.Dt style={{display: 'inline-block'}}>Frame Number:</styled.Dt>
-                    <styled.Dd style={{display: 'inline-block'}}>{history.length}</styled.Dd>
+                    <styled.Dt>Frame Number:</styled.Dt>
+                    <styled.Dd>{history.length}</styled.Dd>
                 </styled.Dl>
             </styled.FrameNumber>
         </styled.FrameNumberSection>
@@ -147,8 +125,16 @@ function Controls({ randomize, clear, next, prev, reverse, animate, stopAnimate,
                                disabled={isReverseAnimating}>{!isAnimating ? 'ANIMATE' : 'STOP'}</styled.Button>
                 <styled.Button type='button' onClick={!isReverseAnimating ? reverseAnimate : stopReverseAnimate}
                                disabled={isAnimating || !hasHistory}>{!isReverseAnimating ? 'REVERSE-ANIMATE' : 'STOP'}</styled.Button>
-                <input type='range' value={frameRate} onChange={setFrameRate} min={helpers.frameRateProps.MIN}
-                       max={helpers.frameRateProps.MAX} step={helpers.frameRateProps.STEP} disabled={isAnimating || isReverseAnimating}/>
+                <styled.Dl>
+                    <styled.Dt>
+                        <label htmlFor="speedInput">Speed</label>
+                    </styled.Dt>
+                    <styled.Dd>
+                        <input id='speedInput' type='range' value={frameRate} onChange={setFrameRate} min={helpers.frameRateProps.MIN}
+                               max={helpers.frameRateProps.MAX} step={helpers.frameRateProps.STEP} disabled={isAnimating || isReverseAnimating}/>
+                    </styled.Dd>
+                </styled.Dl>
+
             </styled.ButtonGroup>
             <styled.ButtonGroup>
                 <styled.ButtonGroupTitle>Iterate</styled.ButtonGroupTitle>
@@ -163,8 +149,22 @@ function Controls({ randomize, clear, next, prev, reverse, animate, stopAnimate,
             </styled.ButtonGroup>
             <styled.ButtonGroup>
                 <styled.ButtonGroupTitle>Grid</styled.ButtonGroupTitle>
-                <input type='number' value={rows} onChange={setDimensions} data-dimension='rows'/>
-                <input type='number' value={columns} onChange={setDimensions} data-dimension='columns'/>
+                <styled.Dl>
+                    <styled.Dt>
+                        <label htmlFor="rowsInput">Rows</label>
+                    </styled.Dt>
+                    <styled.Dd>
+                        <input id='rowsInput' type='number' max={100} step={1} value={rows} onChange={setDimensions} data-dimension='rows'/>
+                    </styled.Dd>
+                </styled.Dl>
+                <styled.Dl>
+                    <styled.Dt>
+                        <label htmlFor="columnsInput">Columns</label>
+                    </styled.Dt>
+                    <styled.Dd>
+                        <input id='columnsInput' type='number' max={100} step={1} value={columns} onChange={setDimensions} data-dimension='columns'/>
+                    </styled.Dd>
+                </styled.Dl>
             </styled.ButtonGroup>
         </styled.ButtonWrap>
     )

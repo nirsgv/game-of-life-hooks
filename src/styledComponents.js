@@ -1,4 +1,8 @@
 import styled from 'styled-components';
+const colors = {
+    'darkblue': '#37474f'
+}
+
 
 const AppContainer = styled.div`
     text-align: center;
@@ -19,7 +23,7 @@ const ButtonGroup = styled.div`
 `
 
 const Button = styled.button`
-    background: ${props => props.disabled ? "#aaa" : "#37474f"};
+    background: ${props => props.disabled ? "#aaa" : colors['darkblue']};
     opacity: ${props => props.disabled ? .5 : 1};
     cursor: ${props => props.disabled ? 'auto' : 'pointer'};
     color: #fff;
@@ -78,7 +82,7 @@ const Automaton = styled.button`
 const FrameNumberSection = styled.div`
     display: flex;
     justify-content: center;
-    background-color: #37474f;
+    background-color: ${colors['darkblue']};
     color: #fff;
 `
 
@@ -94,9 +98,14 @@ const Dl = styled.dl`
 `
 const Dt = styled.dt`
     display: inline-block;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 400;
 `
+
 const Dd = styled.dd`
     display: inline-block;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 400;
 `
 
 export {
