@@ -11,4 +11,6 @@ The game rules:
 </ol>
 
 My favorite feature - 'time-traveling' (try the 'REVERSE-ANIMATE' button).\
+Currently this app does not support mobile layout.\
+Next update will include a UI upgrade and a mobile-first layouting approach.\ 
 Developed using react with hooks (notably useReducer for state management).
