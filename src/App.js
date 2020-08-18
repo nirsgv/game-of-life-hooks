@@ -3,6 +3,40 @@ import reducer from './reducer';
 import * as helpers from './helpers';
 import * as styled from './styledComponents';
 import GlobalStyle from './globalStyle'
+import NumericInput from 'react-numeric-input';
+
+const numInputStyle = {
+    wrap: {
+        background: '#E2E2E2',
+        boxShadow: '0 0 1px 1px #fff inset, 1px 1px 5px -1px #000',
+        padding: '2px 2.26ex 2px 2px',
+        borderRadius: '6px 3px 3px 6px',
+        fontSize: 32,
+    },
+    input: {
+        borderRadius: '4px 2px 2px 4px',
+        color: '#988869',
+        padding: '0.1ex 1ex',
+        border: '1px solid #ccc',
+        marginRight: 4,
+        display: 'inline-block',
+        fontWeight: 100,
+        textShadow: '1px 1px 1px rgba(0, 0, 0, 0.1)',
+        width: 200
+    },
+    'input:focus' : {
+        border: '1px inset #69C',
+        outline: 'none'
+    },
+    arrowUp: {
+        borderBottomColor: 'rgba(66, 54, 0, 0.63)'
+    },
+    arrowDown: {
+        borderTopColor: 'rgba(66, 54, 0, 0.63)'
+    }
+};
+
+
 
 function App() {
     return (
@@ -60,9 +94,10 @@ function Game() {
         dispatch({type: 'STOP_REVERSE_ANIMATE'})
     };
 
-    const setDimensions = (e) => {
-        let value = e.target.value ? Number(e.target.value) : 1;
-        e.target.dataset.dimension === 'columns'
+    const setDimensions = (valueAsNumber, valueAsString, input) => {
+        let value = valueAsNumber ? valueAsNumber : 1;
+
+        input.dataset.dimension === 'columns'
             ? dispatch({type: 'SET_COLUMNS', payload: value})
             : dispatch({type: 'SET_ROWS', payload: value})
     };
@@ -154,7 +189,18 @@ function Controls({ randomize, clear, next, prev, reverse, animate, stopAnimate,
                         <label htmlFor="rowsInput">Rows</label>
                     </styled.Dt>
                     <styled.Dd>
-                        <input id='rowsInput' type='number' max={100} step={1} value={rows} onChange={setDimensions} data-dimension='rows'/>
+                        <NumericInput
+                            mobile
+                            strict
+                            id='rowsInput'
+                            type='number'
+                            max={100}
+                            step={1}
+                            value={rows}
+                            onChange={setDimensions}
+                            data-dimension='rows'
+                            style={numInputStyle}
+                        />
                     </styled.Dd>
                 </styled.Dl>
                 <styled.Dl>
@@ -162,7 +208,18 @@ function Controls({ randomize, clear, next, prev, reverse, animate, stopAnimate,
                         <label htmlFor="columnsInput">Columns</label>
                     </styled.Dt>
                     <styled.Dd>
-                        <input id='columnsInput' type='number' max={100} step={1} value={columns} onChange={setDimensions} data-dimension='columns'/>
+                        <NumericInput
+                            mobile
+                            strict
+                            id='columnsInput'
+                            type='number'
+                            max={100}
+                            step={1}
+                            value={columns}
+                            onChange={setDimensions}
+                            data-dimension='columns'
+                            style={numInputStyle}
+                        />
                     </styled.Dd>
                 </styled.Dl>
             </styled.ButtonGroup>
@@ -192,7 +249,7 @@ function Grid({grid, flip}) {
     )
 }
 
-function Cell({value, flip}) {
+function Cell({value, flip, colIdx, rowIdx}) {
     return (
         <styled.CellWrap>
             <styled.Automaton type='button' value={value} onClick={flip} />
