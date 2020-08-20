@@ -5,6 +5,7 @@ import * as styled from './styledComponents';
 import GlobalStyle from './globalStyle'
 import NumericInput from 'react-numeric-input';
 import numInputStyle from './numInputStyle';
+import SvgSprite from './svgSprite';
 
 import {
     BrowserView,
@@ -126,12 +127,11 @@ function Game() {
                 <styled.Dl primary>
                     <styled.Dt>Frame Number:</styled.Dt>
                     <styled.Dd>{history.length}</styled.Dd>
-                    <MobileView>
-                        <div onClick={toggleMobileMenu}>
-                            {isMobileMenuOpen ? 'close' : 'open'}
-                        </div>
-                    </MobileView>
+
                 </styled.Dl>
+                <MobileView>
+                    <SvgSprite clickHandler={toggleMobileMenu} name={isMobileMenuOpen ? 'TIMES' : 'HAMBURGER'}/>
+                </MobileView>
             </styled.FrameNumber>
         </styled.FrameNumberSection>
         <styled.GridSection>
@@ -150,9 +150,7 @@ function Controls({ randomize, clear, next, prev, reverse, animate, stopAnimate,
         <styled.Header className={`controls ${isMobile ? isMobileMenuOpen ? 'opened' : 'closed' : ''} `}>
 
             <MobileView>
-                <div onClick={toggleMobileMenu}>
-                    {isMobileMenuOpen ? 'close' : 'open'}
-                </div>
+                <SvgSprite clickHandler={toggleMobileMenu} name={isMobileMenuOpen ? 'TIMES' : 'HAMBURGER'}/>
             </MobileView>
             <styled.ButtonWrap>
                 <styled.ButtonGroup>
