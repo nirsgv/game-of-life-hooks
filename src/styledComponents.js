@@ -1,42 +1,79 @@
-import styled from 'styled-components';
+import styled, {css} from 'styled-components';
+
 const colors = {
     'darkblue': '#37474f'
 }
 
 
 const AppContainer = styled.div`
-    text-align: center;
     display: flex;
+    position: relative;
     flex-direction: column;
+    text-align: center;
     height: 100vh;
 `
 
 const ButtonWrap = styled.section`
     display: flex;
-    flex-direction: row; 
     justify-content: center;
+    
+    flex-direction: column; 
+    padding: 0 2rem;
+    @media (hover: hover) {
+    padding: 0;
+    flex-direction: row; 
+  }
 `
 
 const ButtonGroup = styled.div`
     display: flex;
     flex-direction: column; 
+    //padding: 0.5rem;
+    & > * {
+        margin: 0.4rem;
+
+    }
 `
 
 const Button = styled.button`
-    background: ${props => props.disabled ? "#aaa" : colors['darkblue']};
-    opacity: ${props => props.disabled ? .5 : 1};
-    cursor: ${props => props.disabled ? 'auto' : 'pointer'};
-    color: #fff;
+    min-width: 5rem;
     border-radius: 5px;
-    display: block;
-    margin: .4em;
-    padding: 1em 2em;
-    min-width: 200px;
+    color: #fff;
+    opacity: ${props => props.disabled ? .5 : 1};
+    background: ${props => props.disabled ? "#aaa" : colors['darkblue']};
+    padding: .4em .8em;
+
+    @media (hover: hover) {
+      cursor: ${props => props.disabled ? 'auto' : 'pointer'};
+      display: block;
+      padding: 1em 2em;
+      min-width: 20rem;
+  }
 `
 
 const Header = styled.header`
     background: #ECEFF1;
-    padding: 1rem 0;
+    position: absolute;
+    height: 100vh;
+    right: -50vw;
+    width: 50vw;
+    transition: right 0.1s ease-in;
+    max-height: 100vh;
+    &.opened {
+      right: 0;
+    }
+    
+    
+    @media (hover: hover) {
+      width: auto;
+      height: auto;
+      right: auto;
+      padding: 1rem 0;
+      position: relative;
+      min-width: 20rem;
+    }
+    
+
 `
 
 const ButtonGroupTitle = styled.h2`
@@ -47,6 +84,8 @@ const ButtonGroupTitle = styled.h2`
 
 const GridSection = styled.main`
     margin: auto 0;
+    max-width: 100vw;
+    overflow: hidden;
 `
 
 const GridWrap = styled.div`
@@ -79,7 +118,7 @@ const Automaton = styled.button`
     }
 `
 
-const FrameNumberSection = styled.div`
+const FrameNumberSection = styled.section`
     display: flex;
     justify-content: center;
     background-color: ${colors['darkblue']};
@@ -87,19 +126,33 @@ const FrameNumberSection = styled.div`
 `
 
 const FrameNumber = styled.div`
-    font-size: 20px;
+    font-size: 1.4rem;
     padding: 1rem 0;
+    @media (hover: hover) {
+    font-size: 2rem;
+    }
 `
 
 const Dl = styled.dl`
     display: flex;
     width: 200px;
     justify-content: space-between;
+    padding: 0 0 1rem 0;
+    min-width: 200px;
+    margin: 0.4rem;
+    ${props => props.primary && css` // used for displaying frame number
+      width: 200px;
+      padding: 0;
+    `}
 `
+
 const Dt = styled.dt`
-    display: inline-block;
+    //display: inline-block;
     font-family: 'Open Sans', sans-serif;
     font-weight: 400;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 `
 
 const Dd = styled.dd`

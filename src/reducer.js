@@ -132,6 +132,13 @@ const reducer = (state, action) => {
                 frameRate: action.payload
             }
         }
+
+        case 'TOGGLE_MOBILE_MENU': {
+            return {
+                ...state,
+                isMobileMenuOpen: !state.isMobileMenuOpen
+            }
+        }
         default:
             return state;
     }
