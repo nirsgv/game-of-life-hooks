@@ -4,7 +4,6 @@ const colors = {
     'darkblue': '#37474f'
 }
 
-
 const AppContainer = styled.div`
     display: flex;
     position: relative;
@@ -20,8 +19,10 @@ const ButtonWrap = styled.section`
     flex-direction: column; 
     padding: 0 2rem;
     @media (hover: hover) {
+    max-width: 120rem;
     padding: 0;
     flex-direction: row; 
+    margin: 0 auto;
   }
 `
 
@@ -29,6 +30,11 @@ const ButtonGroup = styled.div`
     display: flex;
     flex-direction: column; 
     //padding: 0.5rem;
+    width: 100%;
+    @media (hover: hover) {
+      width: 25%;
+    }
+    
     & > * {
         margin: 0.4rem;
 
@@ -36,18 +42,19 @@ const ButtonGroup = styled.div`
 `
 
 const Button = styled.button`
-    min-width: 5rem;
+    //min-width: 5rem;
     border-radius: 5px;
     color: #fff;
     opacity: ${props => props.disabled ? .5 : 1};
     background: ${props => props.disabled ? "#aaa" : colors['darkblue']};
     padding: .4em .8em;
 
+  
     @media (hover: hover) {
       cursor: ${props => props.disabled ? 'auto' : 'pointer'};
       display: block;
       padding: 1em 2em;
-      min-width: 20rem;
+      //min-width: 20rem;
   }
 `
 
@@ -95,7 +102,7 @@ const GridWrap = styled.div`
     align-self: center;
 `
 
-const Grid = styled.div`
+const GridDiv = styled.div`
     display: grid;
     grid-template-rows: ${props => `repeat(${props.rowCount}, 1fr)`};
     grid-template-columns: ${props => `repeat(${props.columnCount}, 1fr)`};
@@ -120,28 +127,38 @@ const Automaton = styled.button`
 
 const FrameNumberSection = styled.section`
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
+    align-items: center;
     background-color: ${colors['darkblue']};
     color: #fff;
+    padding: 1rem 2rem;
+    @media (hover: hover) {
+      justify-content: flex-start;
+      padding: 0 6rem;
+    }
 `
 
 const FrameNumber = styled.div`
     font-size: 1.4rem;
     padding: 1rem 0;
+    width: 10rem;
+
     @media (hover: hover) {
-    font-size: 2rem;
+      font-size: 2rem;
+      width: 20rem;
     }
 `
 
 const Dl = styled.dl`
     display: flex;
-    width: 200px;
-    justify-content: space-between;
+    justify-content: flex-start;
     padding: 0 0 1rem 0;
-    min-width: 200px;
     margin: 0.4rem;
+    @media (hover: hover) {
+      justify-content: space-between;
+    }
     ${props => props.primary && css` // used for displaying frame number
-      width: 200px;
+      //width: 200px;
       padding: 0;
     `}
 `
@@ -170,7 +187,7 @@ export {
     ButtonGroupTitle,
     GridSection,
     GridWrap,
-    Grid,
+    GridDiv,
     CellWrap,
     Automaton,
     FrameNumberSection,

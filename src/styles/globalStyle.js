@@ -37,6 +37,15 @@ const GlobalStyle = createGlobalStyle`
     input[type="number"] {
       width: 10rem;
     }
+    
+    svg {
+    width: 1em;
+    fill: currentColor;
+    font-size: 2em;
+    text-align: center;
+    vertical-align: middle;
+    box-sizing: content-box;
+    }
 `;
 
 export default GlobalStyle;

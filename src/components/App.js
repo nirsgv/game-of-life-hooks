@@ -1,10 +1,13 @@
-import React, { useState, useReducer, useMemo } from 'react';
-import reducer from './reducer';
-import * as helpers from './helpers';
-import * as styled from './styledComponents';
-import GlobalStyle from './globalStyle'
+import React, { useReducer, useMemo } from 'react';
+import reducer from '../reducer';
+import * as helpers from '../helpers';
+import {
+    AppContainer, ButtonWrap, ButtonGroup, Button, Header, ButtonGroupTitle, GridSection, GridWrap, GridDiv, CellWrap,
+    Automaton, FrameNumberSection, FrameNumber, Dl, Dt, Dd
+} from './common';
+import GlobalStyle from '../styles/globalStyle'
 import NumericInput from 'react-numeric-input';
-import numInputStyle from './numInputStyle';
+import numInputStyle from '../styles/numInputStyle';
 import SvgSprite from './svgSprite';
 
 import {
@@ -19,9 +22,9 @@ function App() {
     return (
         <>
         <GlobalStyle />
-        <styled.AppContainer>
+        <AppContainer>
             <Game/>
-        </styled.AppContainer>
+        </AppContainer>
         </>
     );
 }
@@ -122,21 +125,24 @@ function Game() {
                   isMobileMenuOpen={isMobileMenuOpen}
                   toggleMobileMenu={toggleMobileMenu}
         />
-        <styled.FrameNumberSection>
-            <styled.FrameNumber>
-                <styled.Dl primary>
-                    <styled.Dt>Frame Number:</styled.Dt>
-                    <styled.Dd>{history.length}</styled.Dd>
+        <FrameNumberSection>
 
-                </styled.Dl>
-                <MobileView>
-                    <SvgSprite clickHandler={toggleMobileMenu} name={isMobileMenuOpen ? 'TIMES' : 'HAMBURGER'}/>
-                </MobileView>
-            </styled.FrameNumber>
-        </styled.FrameNumberSection>
-        <styled.GridSection>
+            <div>Game Of Life</div>
+
+            <FrameNumber>
+                <Dl primary>
+                    <Dt>Frame:</Dt>
+                    <Dd>{history.length}</Dd>
+
+                </Dl>
+            </FrameNumber>
+            <MobileView>
+                <SvgSprite clickHandler={toggleMobileMenu} name={isMobileMenuOpen ? 'TIMES' : 'HAMBURGER'}/>
+            </MobileView>
+        </FrameNumberSection>
+        <GridSection>
             <Grid grid={history[history.length - 1].grid} flip={flip}/>
-        </styled.GridSection>
+        </GridSection>
         </>
     )
 }
@@ -147,50 +153,49 @@ function Controls({ randomize, clear, next, prev, reverse, animate, stopAnimate,
 
 
     return (
-        <styled.Header className={`controls ${isMobile ? isMobileMenuOpen ? 'opened' : 'closed' : ''} `}>
+        <Header className={`controls ${isMobile ? isMobileMenuOpen ? 'opened' : 'closed' : ''} `}>
 
             <MobileView>
                 <SvgSprite clickHandler={toggleMobileMenu} name={isMobileMenuOpen ? 'TIMES' : 'HAMBURGER'}/>
             </MobileView>
-            <styled.ButtonWrap>
-                <styled.ButtonGroup>
-                    <styled.ButtonGroupTitle>Animate</styled.ButtonGroupTitle>
-                    <styled.Button type='button' onClick={!isAnimating ? animate : stopAnimate}
-                                   disabled={isReverseAnimating}>{!isAnimating ? 'ANIMATE' : 'STOP'}</styled.Button>
-                    <styled.Button type='button' onClick={!isReverseAnimating ? reverseAnimate : stopReverseAnimate}
-                                   disabled={isAnimating || !hasHistory}>{!isReverseAnimating ? 'REVERSE-ANIMATE' : 'STOP'}</styled.Button>
-                    <styled.Dl>
-                        <styled.Dt>
+            <ButtonWrap>
+                <ButtonGroup>
+                    <ButtonGroupTitle>Animate</ButtonGroupTitle>
+                    <Button type='button' onClick={!isAnimating ? animate : stopAnimate}
+                                   disabled={isReverseAnimating}>{!isAnimating ? 'ANIMATE' : 'STOP'}</Button>
+                    <Button type='button' onClick={!isReverseAnimating ? reverseAnimate : stopReverseAnimate}
+                                   disabled={isAnimating || !hasHistory}>{!isReverseAnimating ? 'REVERSE-ANIMATE' : 'STOP'}</Button>
+                    <Dl>
+                        <Dt>
                             <label htmlFor="speedInput">Speed</label>
-                        </styled.Dt>
-                        <styled.Dd>
+                        </Dt>
+                        <Dd>
                             <input id='speedInput' type='range' value={frameRate} onChange={setFrameRate} min={helpers.frameRateProps.MIN}
                                    max={helpers.frameRateProps.MAX} step={helpers.frameRateProps.STEP} disabled={isAnimating || isReverseAnimating}/>
-                        </styled.Dd>
-                    </styled.Dl>
+                        </Dd>
+                    </Dl>
 
-                </styled.ButtonGroup>
-                <styled.ButtonGroup>
-                    <styled.ButtonGroupTitle>Iterate</styled.ButtonGroupTitle>
-                    <styled.Button type='button' onClick={next}>NEXT</styled.Button>
-                    <styled.Button type='button' onClick={prev} disabled={!hasHistory}>PREV</styled.Button>
-                </styled.ButtonGroup>
-                <styled.ButtonGroup>
-                    <styled.ButtonGroupTitle>Reset</styled.ButtonGroupTitle>
-                    <styled.Button type='button' onClick={randomize}>RANDOMIZE</styled.Button>
-                    <styled.Button type='button' onClick={clear}>CLEAR</styled.Button>
-                    <styled.Button type='button' onClick={reverse}>NEGATE</styled.Button>
-                </styled.ButtonGroup>
+                </ButtonGroup>
+                <ButtonGroup>
+                    <ButtonGroupTitle>Iterate</ButtonGroupTitle>
+                    <Button type='button' onClick={next}>NEXT</Button>
+                    <Button type='button' onClick={prev} disabled={!hasHistory}>PREV</Button>
+                </ButtonGroup>
+                <ButtonGroup>
+                    <ButtonGroupTitle>Reset</ButtonGroupTitle>
+                    <Button type='button' onClick={randomize}>RANDOMIZE</Button>
+                    <Button type='button' onClick={clear}>CLEAR</Button>
+                    <Button type='button' onClick={reverse}>NEGATE</Button>
+                </ButtonGroup>
                 <BrowserView>
-                <styled.ButtonGroup>
-                    <styled.ButtonGroupTitle>Grid</styled.ButtonGroupTitle>
-                    <styled.Dl>
-                        <styled.Dt>
+                <ButtonGroup>
+                    <ButtonGroupTitle>Grid</ButtonGroupTitle>
+                    <Dl>
+                        <Dt>
                             <label htmlFor="rowsInput">Rows</label>
-                        </styled.Dt>
-                        <styled.Dd>
+                        </Dt>
+                        <Dd>
                             <NumericInput
-                                // mobile
                                 strict
                                 id='rowsInput'
                                 type='number'
@@ -201,15 +206,14 @@ function Controls({ randomize, clear, next, prev, reverse, animate, stopAnimate,
                                 data-dimension='rows'
                                 style={numInputStyle}
                             />
-                        </styled.Dd>
-                    </styled.Dl>
-                    <styled.Dl>
-                        <styled.Dt>
+                        </Dd>
+                    </Dl>
+                    <Dl>
+                        <Dt>
                             <label htmlFor="columnsInput">Columns</label>
-                        </styled.Dt>
-                        <styled.Dd>
+                        </Dt>
+                        <Dd>
                             <NumericInput
-                                // mobile
                                 strict
                                 id='columnsInput'
                                 type='number'
@@ -220,12 +224,12 @@ function Controls({ randomize, clear, next, prev, reverse, animate, stopAnimate,
                                 data-dimension='columns'
                                 style={numInputStyle}
                             />
-                        </styled.Dd>
-                    </styled.Dl>
-                </styled.ButtonGroup>
+                        </Dd>
+                    </Dl>
+                </ButtonGroup>
                 </BrowserView>
-            </styled.ButtonWrap>
-        </styled.Header>
+            </ButtonWrap>
+        </Header>
     )
 }
 
@@ -243,19 +247,19 @@ function Grid({grid, flip}) {
     );
 
     return (
-        <styled.GridWrap>
-            <styled.Grid rowCount={grid.length} columnCount={grid[0].length}>
+        <GridWrap>
+            <GridDiv rowCount={grid.length} columnCount={grid[0].length}>
                 {MemoizedGrid}
-            </styled.Grid>
-        </styled.GridWrap>
+            </GridDiv>
+        </GridWrap>
     )
 }
 
 function Cell({value, flip, colIdx, rowIdx}) {
     return (
-        <styled.CellWrap>
-            <styled.Automaton type='button' value={value} onClick={flip} />
-        </styled.CellWrap>
+        <CellWrap>
+            <Automaton type='button' value={value} onClick={flip} />
+        </CellWrap>
     )
 }
 
